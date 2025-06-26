@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cell Detection Results</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; }
+    .container { display: flex; flex-direction: column; align-items: center; }
+    canvas { border: 1px solid #333; margin-top: 1em; }
+    .summary { margin-top: 1em; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Cell Detection Results</h1>
+    <canvas id="resultCanvas" width="512" height="512"></canvas>
+    <div class="summary" id="cellCount"></div>
+  </div>
+  <script>
+    // Simulated result data - replace these with actual values (e.g., from backend or query params)
+    const imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/HeLa_cells.jpg/512px-HeLa_cells.jpg";
+    const cells = [
+      { x: 60, y: 70 }, { x: 120, y: 200 }, { x: 320, y: 150 }, { x: 400, y: 400 }
+      // ... (add detected cells here)
+    ];
+
+    const canvas = document.getElementById('resultCanvas');
+    const ctx = canvas.getContext('2d');
+    const cellCountDiv = document.getElementById('cellCount');
+
+    function drawResults(img, cells) {
+      // Resize canvas to image
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      // Draw detected cells
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 2;
+      for (const cell of cells) {
+        ctx.beginPath();
+        ctx.arc(cell.x, cell.y, 10, 0, 2 * Math.PI);
+        ctx.stroke();
+      }
+      cellCountDiv.textContent = `Detected Cells: ${cells.length}`;
+    }
+
+    const img = new Image();
+    img.onload = () => drawResults(img, cells);
+    img.src = imageUrl;
+  </script>
+</body>
+</html>

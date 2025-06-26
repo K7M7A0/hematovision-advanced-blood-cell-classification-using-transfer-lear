@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cell Detection Web Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; }
+    canvas { border: 1px solid #333; margin-top: 1em; }
+  </style>
+</head>
+<body>
+  <h1>Cell Detection Demo</h1>
+  <input type="file" id="imageUpload" accept="image/*">
+  <br>
+  <canvas id="canvas" width="512" height="512"></canvas>
+  <script>
+    const input = document.getElementById('imageUpload');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    function detectCells(imageData) {
+      // Simple detection: highlight bright spots (simulate "cells")
+      const { data, width, height } = imageData;
+      // Output: draw red circles where brightness > threshold
+      const threshold = 200; // Adjust as needed
+      let cells = [];
+      for (let y = 1; y < height - 1; y++) {
+        for (let x = 1; x < width - 1; x++) {
+          let idx = (y * width + x) * 4;
+          let r = data[idx], g = data[idx + 1], b = data[idx + 2];
+          let brightness = (r + g + b) / 3;
+          if (brightness > threshold) {
+            cells.push({ x, y });
+          }
+        }
+      }
+      // Cluster points: just take every Nth point for demo
+      return cells.filter((_, idx) => idx % 100 === 0);
+    }
+
+    input.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const img = new Image();
+        img.onload = function() {
+          // Fit image to canvas
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          // Get image data
+          let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          // Detect cells
+          const cells = detectCells(imageData);
+          //about blood cellls Blood cells are vital components of our body, playing essential roles in immunity, oxygen transport, and clotting. Understanding different types of blood cells is crucial for diagnosing various medical conditions.
+          //predict blood cell typeUpload an image of a blood cell to determine its type using our state-of-the-art classification model.
+          // Draw result
+          ctx.drawImage(img, 0, 0);
+          ctx.strokeStyle = 'red';
+          ctx.lineWidth = 2;
+          for (let cell of cells) {
+            ctx.beginPath();
+            ctx.arc(cell.x, cell.y, 10, 0, 2 * Math.PI);
+            ctx.stroke();
+          }
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  </script>
+</body>
+</html>
